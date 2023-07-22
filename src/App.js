@@ -1,22 +1,36 @@
 import { useState } from "react";
 
 const initialItems = [
-  { id: 1, description: "Passports", qty: 2, packed: true },
-  { id: 2, description: "Socks", qty: 12, packed: false },
-  { id: 3, description: "Charger", qty: 12, packed: true },
+  { id: 1, description: "Passports", qty: 2, packed: false },
+  { id: 2, description: "Socks", qty: 12, packed: true },
+  { id: 3, description: "Charger", qty: 12, packed: false },
 ];
 
 function App() {
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState(initialItems);
   function handleAddItems(item) {
     setItems((items) => [...items, item]);
+  }
+
+  function handleDeleteItem(id) {
+    setItems((items) => items.filter((i) => i.id !== id));
+  }
+
+  function handlePackedItem(id) {
+    setItems((items) =>
+      items.map((i) => (i.id === id ? { ...i, packed: !i.packed } : i))
+    );
   }
 
   return (
     <div className="app">
       <Logo />
       <Form items={items} onAddItems={handleAddItems} />
-      <PackingList items={items} />
+      <PackingList
+        items={items}
+        onDeleteItem={handleDeleteItem}
+        onPackedItem={handlePackedItem}
+      />
       <Stats />
     </div>
   );
@@ -63,25 +77,40 @@ function Form({ onAddItems }) {
   );
 }
 
-function PackingList({ items }) {
+function PackingList({ items, onDeleteItem, onPackedItem }) {
   return (
     <section className="list">
       <ul>
-        {items.map((item) => {
-          return <Item key={item.id} item={item} />;
-        })}
+        {items.map((item) => (
+          <Item item={item} onDelete={onDeleteItem} onPacked={onPackedItem} />
+        ))}
       </ul>
     </section>
   );
 }
 
-function Item({ item }) {
+function Item({ item, onDelete, onPacked }) {
   return (
     <li key={item.id}>
+      {item.packed ? (
+        <input
+          type="checkbox"
+          onChange={() => onPacked(item.id)}
+          value={item.packed}
+          checked
+        />
+      ) : (
+        <input
+          type="checkbox"
+          onChange={() => onPacked(item.id)}
+          value={item.packed}
+        />
+      )}
+
       <span style={item.packed ? { textDecoration: "line-through" } : {}}>
         {item.qty} {item.description}
       </span>
-      <button>❌</button>
+      <button onClick={() => onDelete(item.id)}>❌</button>
     </li>
   );
 }
