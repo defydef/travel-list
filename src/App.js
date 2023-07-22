@@ -1,17 +1,22 @@
 import { useState } from "react";
 
 const initialItems = [
-  { id: 1, description: "Passports", quantity: 2, packed: true },
-  { id: 2, description: "Socks", quantity: 12, packed: false },
-  { id: 3, description: "Charger", quantity: 12, packed: true },
+  { id: 1, description: "Passports", qty: 2, packed: true },
+  { id: 2, description: "Socks", qty: 12, packed: false },
+  { id: 3, description: "Charger", qty: 12, packed: true },
 ];
 
 function App() {
+  const [items, setItems] = useState([]);
+  function handleAddItems(item) {
+    setItems((items) => [...items, item]);
+  }
+
   return (
     <div className="app">
       <Logo />
-      <Form />
-      <PackingList />
+      <Form items={items} onAddItems={handleAddItems} />
+      <PackingList items={items} />
       <Stats />
     </div>
   );
@@ -21,7 +26,7 @@ function Logo() {
   return <h1>🏝️ Far Away 💼</h1>;
 }
 
-function Form() {
+function Form({ onAddItems }) {
   const numOfOptions = Array.from({ length: 20 }, (_, i) => i + 1);
   const [description, setDescription] = useState("");
   const [qty, setQty] = useState(1);
@@ -29,11 +34,10 @@ function Form() {
   function handleSubmit(e) {
     e.preventDefault();
     if (description === "") return;
-
     const newItem = { description, qty, packed: false, id: Date.now() };
-    console.log(newItem);
-    setQty((qty) => 1);
-    setDescription((description) => "");
+    onAddItems(newItem);
+    setQty(1);
+    setDescription("");
   }
 
   return (
@@ -59,8 +63,7 @@ function Form() {
   );
 }
 
-function PackingList() {
-  const [items, setItems] = useState(initialItems);
+function PackingList({ items }) {
   return (
     <section className="list">
       <ul>
@@ -76,7 +79,7 @@ function Item({ item }) {
   return (
     <li key={item.id}>
       <span style={item.packed ? { textDecoration: "line-through" } : {}}>
-        {item.quantity} {item.description}
+        {item.qty} {item.description}
       </span>
       <button>❌</button>
     </li>
